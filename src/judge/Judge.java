@@ -14,10 +14,7 @@ public class Judge {
 		System.out.println("");
 		
 		GlobalDictionary dictionary = new GlobalDictionary();
-		dictionary.addWord("bra", 1);
-		dictionary.addWord("dålig", -1);
-		dictionary.addWord("sämst", -2);
-		dictionary.addWord("bäst", 2);
+		
 		
 		Item i1 = new Item("jag tycker. att böcker är bra!");
 		Item i2 = new Item("jag tycker att böcker är dålig!");
