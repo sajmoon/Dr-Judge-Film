@@ -19,9 +19,9 @@ public class Judge {
 		dictionary.addWord("sämst", -2);
 		dictionary.addWord("bäst", 2);
 		
-		Item i1 = new Item("jag tycker att böcker är bra");
-		Item i2 = new Item("jag tycker att böcker är dålig");
-		Item i3 = new Item("jag tycker att bra böcker är dålig");
+		Item i1 = new Item("jag tycker. att böcker är bra!");
+		Item i2 = new Item("jag tycker att böcker är dålig!");
+		Item i3 = new Item("jag tycker att bra böcker är dålig!");
 		
 		
 		System.out.println(">> i1: " + dictionary.getWordWeightAsString( i1 )
