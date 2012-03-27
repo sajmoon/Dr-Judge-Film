@@ -1,0 +1,4 @@
+subtle
+great
+good
+bad

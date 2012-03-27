@@ -1,0 +1,4 @@
+clever
+good
+bad
+great

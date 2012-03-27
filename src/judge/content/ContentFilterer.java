@@ -110,7 +110,7 @@ public class ContentFilterer {
 		String theFile = "";
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(f));
-			char[] buf = new char[(int) f.length()];
+			char[] buf = new char[(int) f.length()*2];
 			in.read(buf);
 			theFile = new String(buf);
 		} catch (FileNotFoundException e) {
