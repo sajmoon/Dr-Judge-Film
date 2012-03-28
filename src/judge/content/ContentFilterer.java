@@ -20,7 +20,7 @@ public class ContentFilterer {
 	private static final String CONTENT_PATH = "datasets/classified/";
 	private static final String BASE_PATH = "datasets/";
 	private static final String TEST_PATH = "test/";
-	private static final String TRAIN_PATH = "train/";
+	//private static final String TRAIN_PATH = "train/";
 	private static final String STOP_FILE = "stopwords";
 	private static final String FILTERED_PATH = "filtered/";
 	
@@ -141,10 +141,6 @@ public class ContentFilterer {
 	private void p(String m){
 		if(DEBUGGING)
 			System.out.println(m);
-	}
-	private void pp(String m){
-		if(DEBUGGING)
-			System.out.print(m);
 	}
 	
 
