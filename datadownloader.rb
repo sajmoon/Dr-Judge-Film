@@ -34,8 +34,15 @@ def getTweets2(hashtags)
 
   hashtags.each do |h|
     Twitter.search(h, :lang => "en").map do |status|
+      foldername = h.to_s.delete('#').delete('[').delete(']').delete('"') 
+      begin
+        Dir::mkdir("data/" + foldername)
+      rescue
 
-      writeToFile(status.text, "data/" + status.id.to_s)
+      end
+      
+
+      writeToFile(status.text, "data/" + foldername + "/" + status.id.to_s)
       
     end
   end
