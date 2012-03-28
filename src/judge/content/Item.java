@@ -1,7 +1,5 @@
 package judge.content;
 
-import java.util.ArrayList;
-
 public class Item {
 	String[] wordList;
 		

@@ -1,0 +1,4 @@
+great
+bad
+worst
+good

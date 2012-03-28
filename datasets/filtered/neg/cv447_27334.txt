@@ -1,0 +1,9 @@
+worst
+good
+bad
+bad
+worse
+good
+bad
+bad
+bad

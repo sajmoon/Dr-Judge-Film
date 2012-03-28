@@ -1,0 +1,5 @@
+decent
+bad
+good
+bad
+great

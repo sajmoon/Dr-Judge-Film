@@ -1,29 +1,26 @@
 package judge;
 
-import judge.content.GlobalDictionary;
-import judge.content.Item;
 
 public class Judge {
+	private static final String BASE_PATH = "datasets/classified/";
+	private static final String TEST_PATH = BASE_PATH+"test/";
+	private static final String TRAIN_PATH = BASE_PATH+"train/";
+	private static ClassifierHandler handler;
+	
+	public static void main(String[] args){
+		new Judge().runJudge();
+	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		System.out.println("Console Judge!");
-		System.out.println("--------------");
-		System.out.println("");
+	public Judge(){
 		
-		GlobalDictionary dictionary = new GlobalDictionary();
+	}
+	public void runJudge(){
+		handler = new ClassifierHandler();
+		handler.setTrainingData(handler.loadDataFromDir(TRAIN_PATH));
+		handler.setTestingData(handler.loadDataFromDir(TEST_PATH));
+		handler.setClassifier(ClassifierHandler.CLASSIF_BAYES_MULTI);
+		handler.classify();
 		
-		
-		Item i1 = new Item("jag tycker. att böcker är bra!");
-		Item i2 = new Item("jag tycker att böcker är dålig!");
-		Item i3 = new Item("jag tycker att bra böcker är dålig!");
-		
-		
-		System.out.println(">> i1: " + dictionary.getWordWeightAsString( i1 )
-				+ " i2: " + dictionary.getWordWeightAsString( i2 )
-				+ " i3: " + dictionary.getWordWeightAsString( i3 ));
 	}
 
 }
