@@ -40,4 +40,12 @@
     <votes>533071</votes>
     <hashtag>#TheMatrix</hashtag>
   </movie>
+  <movie>
+    <id>0111161</id>
+    <title>The Shawshank Redemption (1994)</title>
+    <url>http://akas.imdb.com/title/tt0111161/combined</url>
+    <rating>9.2</rating>
+    <votes>731866</votes>
+    <hashtag>#TheShawshankRedemption</hashtag>
+  </movie>
 </movies>

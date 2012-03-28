@@ -22,6 +22,26 @@ ARGV.each do|a|
   end
 end
 
+class Movie
+  attr_accessor :id
+  attr_accessor :title
+  attr_accessor :url
+  attr_accessor :votes
+  attr_accessor :hashtag
+end
+
+def getTweets2(hashtags)
+
+  hashtags.each do |h|
+    Twitter.search(h, :lang => "en").map do |status|
+
+      writeToFile(status.text, "data/" + status.id.to_s)
+      
+    end
+  end
+end
+
+
 def getTweets(hashtags)
   builder = Builder::XmlMarkup.new(:indent => 2)
 
@@ -35,9 +55,9 @@ def getTweets(hashtags)
   }
 end
 
-def writeToFile(xml, filename)
+def writeToFile(input, filename)
   puts "Writing to file: " + filename.to_s
-  File.open(filename, "w") { |f| f.write(xml) }
+  File.open(filename, "w") { |f| f.write(input) }
 end
 
 def getMovieInformation(inputMovies)
@@ -63,8 +83,15 @@ def getMovieInformation(inputMovies)
   }
 end
 
+def getAllMovieReviews(imdb_id)
+  movieReviews = Imdb::MovieReview.new(imdb_id)
+  puts "slut?"
+  puts movieReviews.all_user_reviews
+  puts "hej"
+end
+
 def listOfMovieTitles
-  movies = ['Schindlers List', 'Inception', 'Fight Club', 'Goodfellas', 'The Matrix']
+  movies = ['Schindlers List', 'Inception', 'Fight Club', 'Goodfellas', 'The Matrix', 'Shawshank Redeption']
 end
 
 def getHashTagsFromXML(xmlFileName)
@@ -82,7 +109,7 @@ if imdbFlag
   puts "-----"
   puts "Get movie information from IMDB"
   movies = listOfMovieTitles
-  moviesXml = getMovieInformation(movies)
+  moviesXml = getMovieInformation2(movies)
   writeToFile(moviesXml, movieXmlFilename)
 end
 
@@ -90,9 +117,11 @@ if tweetFlag
   puts "-----"
   puts "To the tweets! "
   hashtags = getHashTagsFromXML(movieXmlFilename)
-  xmlTweets = getTweets(hashtags)
+  xmlTweets = getTweets2(hashtags)
   writeToFile(xmlTweets,tweetsXmlFilename)
 end
+
+getAllMovieReviews("1")
 
 puts "-----"
 puts "Done, exiting"
