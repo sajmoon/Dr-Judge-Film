@@ -18,7 +18,6 @@ class TwitterParser
   end
 
   def getTweetsForOneMovie(movie)
-    puts "one movie"
     Twitter.search(movie.title, :lang => "en").map do |status|
       movieReview = Review.new(:id => status.id, :text => status.text, :source => "twitter", :moviename => movie.title)
       @reviews.add(movieReview)

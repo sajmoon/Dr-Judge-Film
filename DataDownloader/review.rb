@@ -15,10 +15,11 @@ class Review
       Dir::mkdir(foldername)
     rescue
     end
+
     File.open(foldername + @id.to_s, "w") { |f| f.write(@text) }
   end
 
   def foldername
-    "data/#{@source}/#{@moviename}/"
+    "data/#{@moviename}/#{@source}/"
   end
 end

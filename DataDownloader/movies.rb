@@ -8,6 +8,11 @@ class Movies
   end
 
   def add(movie)
+    begin
+      Dir::mkdir("data/#{movie.title}/")
+    rescue
+
+    end
     @movies << movie
   end
 
