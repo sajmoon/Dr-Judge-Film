@@ -1,119 +1,132 @@
 package judge;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
+import weka.classifiers.Classifier;
 
 public class Judge {
-	private static final String BASE_PATH = "datasets/classified/";
-	private static final String TEST_PATH = BASE_PATH+"test/";
-	private static final String TRAIN_PATH = BASE_PATH+"train/";
-	private static final String TEST_70 = BASE_PATH+"70/";
-	private static final String TEST_60 = BASE_PATH+"60/"; 
-	private static final String TEST_50 = BASE_PATH+"50/"; 
-	private static final String TEST_40 = BASE_PATH+"40/"; 
-	private static final String TEST_30 = BASE_PATH+"30/"; 
-	private static final String TEST_20 = BASE_PATH+"20/"; 
-	private static final String TEST_10 = BASE_PATH+"10/";
-	private static final String OPT_TWEET = "-t";
-	private static final String OPT_CLASSIFIER = "-cl";
-	private static final String OPT_HELP = "-help";
-	private static final String[] OPTS = {OPT_TWEET,OPT_CLASSIFIER,OPT_HELP};
-	private static final String CONTENT_TWEET = "tweets";
-	private static final String CONTENT_BLOG = "blog reviews";
-	private static final String CONTENT_IMDB = "IMDB comments";
-	private static final String CONTENT_EMPTY = "";
+	private static final String TEST_PATH = "datasets/classified/test/";
+	private static final String CONF_PATH = "data/conf/conf";
+	private static final String JUDGE_COMMAND = "judge";
 	private static final String div = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
-	private static final boolean DEBUG = true;
+	
+	private String judgePath;
+	private static Config conf;
 	private static ClassifierHandler handler;
-
+	
+	public Judge(){
+		conf = new Config(CONF_PATH);
+		handler = new ClassifierHandler();
+		handler.setTrainingData(handler.loadDataFromDir(TEST_PATH));
+		String classif = conf.readClassifierToUse();
+		setClassifier(classif);
+	}
+	
 	public static void main(String[] args){
-		if(DEBUG){
-			testTweets();
-		}else{
-			String option = "";
-			Judge judge = new Judge();
-			if(args.length <= 0)
-				judge.runJudge();
+		new Judge().showMenu();
+	}
+
+	private void showMenu() {
+		Scanner in = new Scanner(System.in);
+		String error = "That's not a judgemental command. Be more judgemental!";
+		boolean running = true;
+		while(running){
+			p(mainMenu());
+			pp(">");
+			String optString = in.next();
+			int option = -1;
+			try{
+				option = Integer.parseInt(optString);
+			} catch(NumberFormatException e){
+				if(optString.equals(JUDGE_COMMAND)){
+					if(judgePath != null)
+						judgeContent(judgePath);
+					else
+						p("Set a judge path first!");
+				}
+				else{
+					p(error);
+				}
+			}
+			if(option< -1 | option > 2)
+				p(error);
 			else{
-				option = args[0];
-				if(option.equals(OPT_TWEET)){
-					if(args.length > 1)
-						judge.judgeTweets(args[1]);
-					else{
-						p("No tweet path specified. go to hell");
-						return;
-					}
+				if(option == 1){
+					p("Which path should I judge?");
+					pp(">");
+					String path = in.next();
+					if(new File(path).exists())
+						judgePath = path;
+					else
+						p("Invalid judement path");
 				}
-				if(option.equals(OPT_HELP)){
-					p("Avaliable classifiers:");
-					for(String s : handler.USABLE_ALGOS){
-						p(s);
+				if(option == 2){
+					Classifier[] classifiers = ClassifierHandler.USABLE_ALGOS;
+					String[] extra = ClassifierUtils.getExtraInfo();
+					for(int i=1;i<=classifiers.length;i++){
+						String className = classifiers[i-1].getClass().getSimpleName();
+						p(""+i+". "+className+" "+extra[i-1]);
 					}
-					p("Availiable options:");
-					for(String s : OPTS){
-						p(s);
+					p("Choose one. Choose wisely:");
+					pp(">");
+					String chosen = in.next();
+					int choice = 0;
+					try{
+						choice = Integer.parseInt(chosen)-1;
+					} catch(NumberFormatException e){
+						//Do nothing. let choice stay 0
 					}
-
+					String chosenClassName = classifiers[choice].getClass().getSimpleName();
+					setClassifier(chosenClassName);
 				}
-
-
-
 			}
 		}
 
-
 	}
 
-	private static void testTweets() {
-		String path = "data/tweets/";
-		new Judge().judgeTweets(path);
-
+	private String mainMenu(){
+		return "Court now in session with "+handler.ALGO_USED+"\n"+
+				"All rise for the honorable judge Dr Film.\n" +
+				"Select a judgemental action:\n" +
+				"1. Set judgement path\n" +
+				"2. Set a new classifier algorithm Or\n"+
+				"type "+JUDGE_COMMAND+" to judge the shit out of the path";
+	}
+	
+	private static void setClassifier(String classifier){
+		handler.setClassifier(classifier);
+		conf.writeCurrentConf(handler.ALGO_USED);
 	}
 
-	public Judge(){
-		handler = new ClassifierHandler();
-		handler.setTrainingData(handler.loadDataFromDir(TEST_PATH));
-		handler.setClassifier(ClassifierHandler.CLASSIF_BAYES_MULTI);
-	}
-
-	public void judgeTweets(String tweetspath){
-		File tweetDir = new File(tweetspath);
-		if(!tweetDir.isDirectory()){
-			p(tweetspath+" is not a directory");
+	public void judgeContent(String path){
+		File dir = new File(path);
+		if(!dir.isDirectory()){
+			p(path+" is not a directory");
 			return;
 		}
-		File[] films = tweetDir.listFiles();
+		File[] films = dir.listFiles();
 		p("Judging the following films:");
 		for(File f : films)
 			p(f.getName());
-		for(File dir : films){
-			p("Judging film: "+dir.getName());
-			classify(-1,dir.getAbsolutePath(),CONTENT_TWEET);
+		for(File film : films){
+			p("Judging film: "+film.getName());
+			classify(-1,film.getAbsolutePath());
 		}
-
-
-
 	}
-	public void runJudge(){
-		p("No arguments given. Running tests:");
-		classify(7,TEST_70,CONTENT_IMDB);
-		classify(6,TEST_60,CONTENT_IMDB);
-		classify(5,TEST_50,CONTENT_IMDB);
-		classify(4,TEST_40,CONTENT_IMDB);
-		classify(3,TEST_30,CONTENT_IMDB);
-		classify(2,TEST_20,CONTENT_IMDB);
-		classify(1,TEST_10,CONTENT_IMDB);
-
-	}
-
-	private void classify(double expectedScore, String path, String content){
+	
+	private void classify(double expectedScore, String path){
 		boolean hasExpectedScore = expectedScore>0;
 		String title = "";
 		String filmName = path.substring(path.lastIndexOf(File.separatorChar)+1);
 		if(hasExpectedScore){
-			title = "Classifying "+content+" about "+filmName+" with expected score: "+expectedScore;
+			title = "Classifying opinions on "+filmName+" with expected score: "+expectedScore;
 		}else{
-			title = "Classifying "+content+" about "+filmName+":";
+			title = "Classifying opinions on "+filmName+":";
 		}
 		p(title);
 		handler.setTestingData(handler.loadDataFromDir(path));
@@ -122,16 +135,27 @@ public class Judge {
 		double meanError = Math.abs((expectedScore-result.mean));
 		p("Mean: "+result.mean);
 		p("Median: "+result.median);
-		p("------------------");
 		if(hasExpectedScore){
+			p("------------------");
 			p("Error:");
 			p("Mean: "+meanError);
 			p("Median: "+medianError);
 		}
 		p(div);
 	}
+	
+	private void testJudge(){
+		String basePath = "datasets/classified/";
+		p("Running tests:");
+		for(int i=1;i<8;i++){
+			classify(i,basePath+(i*10)+"/");
+		}
+	}
 	static private void p(String m){
 		System.out.println(m);
+	}
+	static private void pp(String m){
+		System.out.print(m);
 	}
 
 }
