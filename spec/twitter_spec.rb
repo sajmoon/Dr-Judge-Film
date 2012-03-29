@@ -1,3 +1,0 @@
-describe Tweets do
-  
-end
