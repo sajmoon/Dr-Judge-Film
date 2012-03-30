@@ -1,7 +1,7 @@
 PATH
   remote: ../imdb/
   specs:
-    imdb (0.6.9)
+    imdb (0.6.9.1)
       hpricot (~> 0.8.4)
 
 GEM

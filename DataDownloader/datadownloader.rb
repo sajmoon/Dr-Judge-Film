@@ -28,46 +28,56 @@ ARGV.each do|a|
   end
 end
 
-def getTweets2(hashtags)
-  
-  hashtags.each do |h|
-    Twitter.search(h, :lang => "en").map do |status|
+def getMovieById(m)
+  imdbMovie = Imdb::Movie.new(m)
+  @movie = Movie.new(
+    :title => imdbMovie.title,
+    :id => imdbMovie.id,
+    :url => imdbMovie.url,
+    :rating => imdbMovie.rating,
+    :votes => imdbMovie.votes
+  )
+end
 
-      foldername = h.to_s.delete('#').delete('[').delete(']').delete('"') 
-      
-      Reviews.new(:id => status.id, :source => status.source, :text => status.text, :moviename => foldername )
-      
-    end
-  end
-  Reviews.each do |r|
-    puts "statsu: " + r.status
-  end
-  writeReviewArrayToFile(reviews)
+def getMovieByTitle(m)
+  i = Imdb::Search.new(m)
+  imdbMovie = i.movies.first
+    
+  @movie = Movie.new(
+    :title => imdbMovie.title,
+    :id => imdbMovie.id,
+    :url => imdbMovie.url,
+    :rating => imdbMovie.rating,
+    :votes => imdbMovie.votes
+  )
 end
 
 def getMovieInformation(inputMovies)
   @movies = Movies.new
   inputMovies.each do |m|
-    i = Imdb::Search.new(m)
-    imdbMovie = i.movies.first
-    
-    @movie = Movie.new(
-      :title => imdbMovie.title,
-      :id => imdbMovie.id,
-      :url => imdbMovie.url,
-      :rating => imdbMovie.rating,
-      :votes => imdbMovie.votes
-    )
+    @movie = getMovieByTitle(m)
     @movies.add(@movie)
   end
   @movies
 end
 
-def getAllMovieReviews(imdb_id)
-  movieReviews = Imdb::MovieReview.new(imdb_id)
-  puts "slut?"
-  puts movieReviews.all_user_reviews
-  puts "hej"
+def getAllMovieReviewsForAllMovies(movies)
+  allReviews = Reviews.new
+  movies.each do |movie|
+    allReviews.merge(getAllMovieReviews(movie))
+  end
+  allReviews
+end
+
+def getAllMovieReviews(movie)
+  @reviews = Reviews.new
+  movieReviews = Imdb::MovieReviews.new(movie.id)
+  movieReviews.user_reviews(movie.id).each_with_index do |review, index|
+    newReview = Review.new(:id => (movie.id.to_s + "_" + index.to_s), :text => review.to_s, :source => "imdb", :moviename => movie.title)
+
+    @reviews.add(newReview)
+  end
+  @reviews
 end
 
 def listOfMovieTitles
@@ -93,7 +103,13 @@ if tweetFlag
   #writeToFile(xmlTweets,tweetsXmlFilename)
 end
 
-getAllMovieReviews("1")
+puts "-----"
+puts "And onwards to the reviews!"
+
+#@movie = getMovieById("1375666")
+  @reviews = getAllMovieReviewsForAllMovies(@movies)
+
+@reviews.saveToDisc()
 
 puts "-----"
 puts "Done, exiting"
