@@ -7,9 +7,38 @@ import java.util.HashMap;
 import judge.content.RandomDatasetProvider;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.AODE;
+import weka.classifiers.bayes.BayesNet;
+import weka.classifiers.bayes.ComplementNaiveBayes;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.bayes.NaiveBayesSimple;
+import weka.classifiers.functions.LeastMedSq;
+import weka.classifiers.functions.LinearRegression;
+import weka.classifiers.functions.Logistic;
+import weka.classifiers.functions.MultilayerPerceptron;
+import weka.classifiers.functions.PaceRegression;
 import weka.classifiers.functions.SMO;
+import weka.classifiers.lazy.IB1;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.lazy.KStar;
+import weka.classifiers.lazy.LBR;
+import weka.classifiers.misc.HyperPipes;
+import weka.classifiers.rules.ConjunctiveRule;
+import weka.classifiers.rules.DecisionTable;
+import weka.classifiers.rules.JRip;
+import weka.classifiers.rules.NNge;
+import weka.classifiers.rules.OneR;
+import weka.classifiers.rules.PART;
+import weka.classifiers.rules.Prism;
+import weka.classifiers.trees.ADTree;
+import weka.classifiers.trees.DecisionStump;
+import weka.classifiers.trees.Id3;
+import weka.classifiers.trees.J48;
+import weka.classifiers.trees.LMT;
+import weka.classifiers.trees.NBTree;
+import weka.classifiers.trees.lmt.LogisticBase;
+import weka.classifiers.trees.m5.M5Base;
 import weka.core.Instances;
 import weka.core.converters.TextDirectoryLoader;
 import weka.core.stemmers.LovinsStemmer;
@@ -23,14 +52,11 @@ public class ClassifierHandler {
 	Instances trainStructure;
 	Classifier classifier;
 	String ALGO_USED;
-	HashMap<String,Classifier> classifiers;
+	public HashMap<String,Classifier> classifiers;
 	StringToWordVector filter;
 	Evaluation eval;
 	boolean DEBUGGING = true;
-	public static final String CLASSIF_BAYES_MULTI ="Bayes Naive Multinomial";
-	public static final String CLASSIF_BAYES_NAIVE ="Bayes Naive";
-	public static final String CLASSIF_SMO ="Support Vector machine";
-	public static final String[] USABLE_ALGOS = {CLASSIF_BAYES_MULTI,CLASSIF_BAYES_NAIVE,CLASSIF_SMO};
+	public static final Classifier[] USABLE_ALGOS = ClassifierUtils.getClassifiers();
 
 	private static final String div = "-----------------------------------";
 	private static int NEG_CLASS = 0;
@@ -38,9 +64,9 @@ public class ClassifierHandler {
 	
 	public ClassifierHandler(){
 		classifiers = new HashMap<String,Classifier>();
-		classifiers.put(CLASSIF_BAYES_MULTI, new NaiveBayesMultinomial());
-		classifiers.put(CLASSIF_BAYES_NAIVE, new NaiveBayes());
-		classifiers.put(CLASSIF_SMO, new SMO());
+		for(Classifier c : USABLE_ALGOS){
+			classifiers.put(c.getClass().getSimpleName(), c);
+		}
 		
 		filter = new StringToWordVector();
 		Stemmer stemmer = new LovinsStemmer();
@@ -178,7 +204,6 @@ public class ClassifierHandler {
 		ALGO_USED = classifierToUse;
 		try {
 			eval = setTrainingData(classif,trainDataset);
-			p("Built classifier");
 
 		} catch (Exception e) {
 			e.printStackTrace();
