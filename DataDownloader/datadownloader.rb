@@ -64,17 +64,18 @@ end
 def getAllMovieReviewsForAllMovies(movies)
   allReviews = Reviews.new
   movies.each do |movie|
-    allReviews.merge(getAllMovieReviews(movie))
+    #allReviews.merge(getAllMovieReviews(movie))
+    reviews = getAllMovieReviews(movie)
+    reviews.saveToDisc()
   end
   allReviews
 end
 
 def getAllMovieReviews(movie)
   @reviews = Reviews.new
-  movieReviews = Imdb::MovieReviews.new(movie.id)
-  movieReviews.user_reviews(movie.id).each_with_index do |review, index|
-    newReview = Review.new(:id => (movie.id.to_s + "_" + index.to_s), :text => review.to_s, :source => "imdb", :moviename => movie.title)
-
+  imdbMovie = Imdb::Movie.new(movie.id)
+  imdbMovie.user_reviews.each_with_index do |review, index|
+    newReview = Review.new(:id => review.author.to_s + "_" + review.created_at.to_s, :text => review.to_s, :source => "imdb", :moviename => movie.title)
     @reviews.add(newReview)
   end
   @reviews
@@ -109,7 +110,7 @@ puts "And onwards to the reviews!"
 #@movie = getMovieById("1375666")
   @reviews = getAllMovieReviewsForAllMovies(@movies)
 
-@reviews.saveToDisc()
+#@reviews.saveToDisc()
 
 puts "-----"
 puts "Done, exiting"
