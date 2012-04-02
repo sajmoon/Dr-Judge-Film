@@ -1,24 +1,21 @@
 package judge;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Scanner;
 
 import weka.classifiers.Classifier;
 
 public class Judge {
-	private static final String TEST_PATH = "datasets/classified/test/";
+	private static final String TEST_PATH = "data/datasets/classified/test/";
 	private static final String CONF_PATH = "data/conf/conf";
 	private static final String JUDGE_COMMAND = "judge";
 	private static final String div = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
-	
+
 	private String judgePath;
+	private String classFolderRegex = "((pos)*|(neg)*|(all)*)+";
 	private static Config conf;
 	private static ClassifierHandler handler;
-	
+
 	public Judge(){
 		conf = new Config(CONF_PATH);
 		handler = new ClassifierHandler();
@@ -26,7 +23,7 @@ public class Judge {
 		String classif = conf.readClassifierToUse();
 		setClassifier(classif);
 	}
-	
+
 	public static void main(String[] args){
 		new Judge().showMenu();
 	}
@@ -45,7 +42,7 @@ public class Judge {
 			} catch(NumberFormatException e){
 				if(optString.equals(JUDGE_COMMAND)){
 					if(judgePath != null)
-						judgeContent(judgePath);
+						judgeFilmFolder(judgePath);
 					else
 						p("Set a judge path first!");
 				}
@@ -53,10 +50,12 @@ public class Judge {
 					p(error);
 				}
 			}
-			if(option< -1 | option > 2)
+			if(option< -1 | option > 3)
 				p(error);
 			else{
 				if(option == 1){
+					p("Avaliable paths in root:");
+					p(rootFileStructure());
 					p("Which path should I judge?");
 					pp(">");
 					String path = in.next();
@@ -72,6 +71,7 @@ public class Judge {
 						String className = classifiers[i-1].getClass().getSimpleName();
 						p(""+i+". "+className+" "+extra[i-1]);
 					}
+
 					p("Choose one. Choose wisely:");
 					pp(">");
 					String chosen = in.next();
@@ -84,9 +84,53 @@ public class Judge {
 					String chosenClassName = classifiers[choice].getClass().getSimpleName();
 					setClassifier(chosenClassName);
 				}
+				if(option== 3){
+					testAllClassifiers();
+				}
 			}
 		}
 
+	}
+	private void testAllClassifiers() {
+		if(judgePath != null){
+			for(Classifier c : handler.USABLE_ALGOS){
+				String name = c.getClass().getSimpleName();
+				p("Using classifier: "+name);
+				setClassifier(name);
+				judgeFilmFolder(judgePath);
+			}
+		}else{
+			p("No judge path");
+		}
+
+
+	}
+
+	private String rootFileStructure(){
+		return recursiveFileStruct(new File("data/"),0);
+	}
+
+	private String recursiveFileStruct(File dir, int level){
+		File[] list = dir.listFiles();
+		StringBuilder sb = new StringBuilder();
+		String tabs = "";
+		for(int i=0;i<level;i++)
+			tabs += "\t";
+		sb.append(tabs+dir.getName()+":\n");
+		if(list != null && list.length > 0){
+			for(File f : list){
+				boolean isClassFolder = f.getName().matches(classFolderRegex);
+				if(!isClassFolder){
+					if(f.isDirectory()){
+						//Append files from lower down
+						sb.append(recursiveFileStruct(f,level+1));
+					}else{
+						sb.append(tabs+"\t"+f.getName()+"\n");
+					}
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 	private String mainMenu(){
@@ -97,28 +141,40 @@ public class Judge {
 				"2. Set a new classifier algorithm Or\n"+
 				"type "+JUDGE_COMMAND+" to judge the shit out of the path";
 	}
-	
+
 	private static void setClassifier(String classifier){
 		handler.setClassifier(classifier);
 		conf.writeCurrentConf(handler.ALGO_USED);
 	}
 
-	public void judgeContent(String path){
+	public void judgeFilmFolder(String path){
 		File dir = new File(path);
 		if(!dir.isDirectory()){
 			p(path+" is not a directory");
 			return;
 		}
 		File[] films = dir.listFiles();
-		p("Judging the following films:");
-		for(File f : films)
-			p(f.getName());
-		for(File film : films){
-			p("Judging film: "+film.getName());
-			classify(-1,film.getAbsolutePath());
+		boolean isFilmDirectory = false;
+		for(File f : films){
+			//Is this directory a directory of films, or
+			// does it contain one film?
+			isFilmDirectory = f.getName().matches(classFolderRegex);
+		}
+		if(isFilmDirectory){
+			judgeFilm(dir);
+		}
+		else{
+			for(File film : films){
+				judgeFilm(film);
+			}
 		}
 	}
-	
+
+	public void judgeFilm(File film){
+		p("Judging film: "+film.getName());
+		classify(-1,film.getAbsolutePath());
+	}
+
 	private void classify(double expectedScore, String path){
 		boolean hasExpectedScore = expectedScore>0;
 		String title = "";
@@ -143,14 +199,14 @@ public class Judge {
 		}
 		p(div);
 	}
-	
+	/*
 	private void testJudge(){
 		String basePath = "datasets/classified/";
 		p("Running tests:");
 		for(int i=1;i<8;i++){
 			classify(i,basePath+(i*10)+"/");
 		}
-	}
+	}*/
 	static private void p(String m){
 		System.out.println(m);
 	}
