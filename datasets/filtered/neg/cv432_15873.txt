@@ -1,7 +1,0 @@
-great
-worse
-good
-worse
-great
-bad
-awesome

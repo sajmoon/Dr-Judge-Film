@@ -1,6 +1,0 @@
-bad
-good
-worse
-good
-subtle
-bad

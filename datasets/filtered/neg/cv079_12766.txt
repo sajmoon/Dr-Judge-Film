@@ -1,5 +1,0 @@
-bad
-good
-bad
-worse
-good

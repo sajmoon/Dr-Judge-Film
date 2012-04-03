@@ -1,6 +1,0 @@
-good
-bad
-worse
-bad
-clever
-clever
