@@ -55,8 +55,14 @@ end
 def getMovieInformation(inputMovies)
   @movies = Movies.new
   inputMovies.each do |m|
-    @movie = getMovieByTitle(m)
-    @movies.add(@movie)
+    puts "Movie: #{m}"
+    begin
+      @movie = getMovieByTitle(m)
+      @movies.add(@movie)
+    rescue
+      puts " - Not found"
+
+    end
   end
   @movies
 end
@@ -66,23 +72,48 @@ def getAllMovieReviewsForAllMovies(movies)
   movies.each do |movie|
     #allReviews.merge(getAllMovieReviews(movie))
     reviews = getAllMovieReviews(movie)
-    reviews.saveToDisc()
+    #reviews.saveToDisc()
   end
   allReviews
 end
 
 def getAllMovieReviews(movie)
-  @reviews = Reviews.new
   imdbMovie = Imdb::Movie.new(movie.id)
-  imdbMovie.user_reviews.each_with_index do |review, index|
-    newReview = Review.new(:id => review.author.to_s + "_" + review.created_at.to_s, :text => review.to_s, :source => "imdb", :moviename => movie.title)
-    @reviews.add(newReview)
+  
+  readyToStop = false
+  i = 450 #Fifth element
+  #i = 0
+  j = 50
+  steplenght = j
+
+  while !readyToStop
+
+    @reviews = Reviews.new
+    imdbMovie.user_reviews(i,j).each_with_index do |review, index|
+      newReview = Review.new(:id => review.author.to_s + "_" + review.created_at.to_s, :text => review.to_s, :source => "imdb", :moviename => movie.title)
+      @reviews.add(newReview)
+    end
+
+    @reviews.saveToDisc()
+
+    puts "Total saved #{@reviews.size}"
+    if @reviews.size >= j
+      puts "set new values"
+      i = i+ j
+      j = steplenght
+    else
+      readyToStop = true
+    end
+
   end
-  @reviews
+
 end
 
 def listOfMovieTitles
-  movies = ['Schindlers List', 'Inception', 'Fight Club', 'Goodfellas', 'The Matrix', 'Shawshank Redeption']
+  movies = ['The girl with the dragon tattoo', 'The Raid: Redemption', 'Hobo with a shotgun', 'Resident Evil: Afterlife', 'Resident Evil', 'Resident Evil: Extinction', 'Resident Evil: Apocalypse', 'Resident Evil: Degeneration', 'Resident Evil', 'Zoolander' 'Dummy', 'The Claim', 'The Million dollar hotel', 'The messenger: The Story of Joan of Arc', 'The fifth Element', 'He Got Game', 'Dazed and confused', 'Chaplin' , 'Kuffs', 'Return to the blue lagoon', 'Married with Children', 'Parker Lewis', 'Two moon Junction']
+  #moview = ['wrath of the titans' , 'We bought a zoo', 'Mirror Mirror', 'The three stooges', 'The artist', 'The Muppets', 'Midnight in Paris', 'Crazy, Stupid, Love', 'American Pie', 'Bridesmaids', 'The hangover', 'Forrest Gump', 'Back to the future', 'Kick-Ass', 'The big Year']
+  #movies = ['Orgazmo', 'Hot Shots!', 'Prometheus', 'The Wire', 'Alien', 'The Boondock Saints', 'John Carter', 'In Time', 'X-men: First class', 'Battle Royal', 'Green Lantern', 'Melancholia', 'Transformers: Dark of the moon', 'Men in Black III', 'Eternal Sunshine of the Spotless Mind', 'Dr Jeckell and Mr.Hyde']
+  #movies = ['Inception', 'Schindlers List', 'Inception', 'Fight Club', 'Goodfellas', 'The Matrix', 'Shawshank Redeption', 'Fight Club', 'Goodfellas', The Matrix']
 end
 
 #if imdbFlag
