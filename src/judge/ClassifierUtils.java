@@ -21,7 +21,7 @@ import weka.classifiers.trees.RandomForest;
 import weka.classifiers.trees.RandomTree;
 
 public class ClassifierUtils {
-	static int length = 15;
+	static int length = 14;
 
 	public static Classifier[] getClassifiers(){
 		Classifier[] c = {
@@ -32,7 +32,6 @@ public class ClassifierUtils {
 				new DecisionStump(),
 				new HyperPipes(),
 				new NaiveBayes(),
-				new NaiveBayesSimple(),
 				new OneR(),
 				new RandomForest(),
 				new RandomTree(),

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import judge.content.Dataset;
 import judge.content.RandomDatasetProvider;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -54,7 +55,6 @@ public class ClassifierHandler {
 	String ALGO_USED;
 	public HashMap<String,Classifier> classifiers;
 	StringToWordVector filter;
-	Evaluation eval;
 	boolean DEBUGGING = true;
 	public static final Classifier[] USABLE_ALGOS = ClassifierUtils.getClassifiers();
 
@@ -129,7 +129,7 @@ public class ClassifierHandler {
 		evaluateModel(new SMO(), "Support Vector lol");
 		evaluateModel("testDataset",testDataset);
 	}*/
-	public Dataset loadDataFromDir(String dir){
+	Dataset loadDataFromDir(String dir){
 		TextDirectoryLoader loader = new TextDirectoryLoader();
 		Dataset set = null;
 		try {
@@ -146,6 +146,9 @@ public class ClassifierHandler {
 		return set;
 
 	}
+	public void setTrainingData(Dataset set){
+		setTrainingData(set.data,set.structure);
+	}
 	public void setTrainingData(Instances data, Instances struct){
 		trainStructure = struct;
 		try {
@@ -155,24 +158,11 @@ public class ClassifierHandler {
 			e.printStackTrace();
 		}
 	}
-	public void setTrainingData(Dataset set){
-		trainStructure = set.structure;
-		try {
-			filter.setInputFormat(trainStructure);
-			trainDataset = formatData(set.data);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
+	
 	public void setTestingData(Dataset set){
-		try {
-			testDataset = formatData(set.data);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		setTestingData(set.data);
 	}
-	public void setTestingData(Instances data, Instances struct){
+	public void setTestingData(Instances data){
 		try {
 			testDataset = formatData(data);
 		} catch (Exception e) {
@@ -198,33 +188,29 @@ public class ClassifierHandler {
 		data = Filter.useFilter(data, filter);
 		return data;
 	}
-
+	/**
+	 * Set the classifier to use, and build its model 
+	 * with the current training set
+	 * @param classifierToUse
+	 */
 	public void setClassifier(String classifierToUse){
 		Classifier classif = classifiers.get(classifierToUse);
 		ALGO_USED = classifierToUse;
 		try {
-			eval = setTrainingData(classif,trainDataset);
-
+			//Build the classifier
+			classif.buildClassifier(trainDataset);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		classifier = classif;
 	}
 
-	public Evaluation setTrainingData(Classifier c, Instances dataset) throws Exception{
-		Evaluation e = new Evaluation(dataset);
-		c.buildClassifier(dataset);
+	public Evaluation evaluateModel(Instances data) throws Exception{
+		p("Evulation of algo "+ALGO_USED+":");
+		Evaluation e = new Evaluation(trainDataset);
+		e.evaluateModel(classifier, data);
 		return e;
-	}
-
-	public void evaluateModel(String testDatasetName, Instances data) throws Exception{
-		p("Classification of "+testDatasetName+" with algo: "+ALGO_USED+":");
-		eval.evaluateModel(classifier, data);
-		p("");
-		p("Class details:\n"+eval.toClassDetailsString());
-		p(div);
-		p("Test data:\n"+eval.toSummaryString("jodu", true));
-		p(div);
+		
 	}
 
 	private double classifyData(Instances data) throws Exception{
@@ -261,14 +247,7 @@ public class ClassifierHandler {
 		if(DEBUGGING)
 			System.out.println(m);
 	}
-	private class Dataset{
-		public Instances data;
-		public Instances structure;
-		public Dataset(Instances dat, Instances struct){
-			data = dat;
-			structure = struct;
-		}
-	}
+	
 	
 
 }

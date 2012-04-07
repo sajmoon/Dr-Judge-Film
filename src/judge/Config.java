@@ -10,8 +10,12 @@ import java.io.IOException;
 public class Config {
 	private String CONF_PATH;
 	
-	public Config(String path){
-		CONF_PATH = path;
+	public Config(String path) {
+		File confPath = new File(path);
+		if(!confPath.exists()){
+			confPath.mkdirs();
+		}
+		CONF_PATH = path+"config";
 	}
 	
 	private String[] defaultConfValues(){
