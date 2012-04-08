@@ -1,0 +1,53 @@
+\begin{tabular}{ l c c c c c}
+\hline
+Titel & IMDBbetyg & Medelvärde & Median & Medelvärdesfel & Medianfel \\
+\hline
+Alien (1979) & 8.5 & 7.6 & 7.8 & 0.88 & 0.75 \\
+American Pie (1999) & 6.9 & 4.8 & 4.5 & 2.07 & 2.44 \\
+Back to the Future (1985) & 8.5 & 9.3 & 9.2 & 0.84 & 0.69 \\
+Batoru rowaiaru (2000) & 7.8 & 7.0 & 6.2 & 0.82 & 1.64 \\
+Bridesmaids (2011) & 6.9 & 3.9 & 4.1 & 3.03 & 2.79 \\
+Chaplin (1992) & 7.3 & 7.2 & 7.8 & 0.14 & 0.53 \\
+Crazy, Stupid, Love & 7.5 & 6.5 & 6.3 & 1.0 & 1.25 \\
+Dazed and Confused (1993) & 7.6 & 6.1 & 5.9 & 1.52 & 1.66 \\
+Dr. Jekyll and Mr. Hyde (1931) & 7.7 & 6.4 & 5.1 & 1.28 & 2.62 \\
+Dummy (2002) & 6.7 & 6.6 & 6.8 & 0.08 & 0.12 \\
+Eternal Sunshine of the Spotless Mind (2004) & 8.4 & 7.0 & 7.3 & 1.39 & 1.1 \\
+Fight Club (1999) & 8.8 & 7.6 & 7.6 & 1.17 & 1.18 \\
+Forrest Gump (1994) & 8.7 & 7.6 & 7.5 & 1.13 & 1.16 \\
+Goodfellas (1990) & 8.8 & 8.4 & 8.5 & 0.41 & 0.32 \\
+Green Lantern (2011) & 6.0 & 6.4 & 6.4 & 0.45 & 0.37 \\
+He Got Game & 6.8 & 6.7 & 6.4 & 0.1 & 0.36 \\
+Hobo with a Shotgun (2011) & 6.2 & 4.9 & 4.3 & 1.3 & 1.88 \\
+Hot Shots! (1991) & 6.5 & 6.1 & 5.7 & 0.42 & 0.83 \\
+In Time (2011) & 6.5 & 6.8 & 6.9 & 0.25 & 0.43 \\
+Inception (2010) & 8.8 & 7.5 & 7.6 & 1.31 & 1.2 \\
+Joan of Arc & 6.3 & 6.5 & 7.3 & 0.22 & 0.96 \\
+John Carter (2012) & 7.0 & 6.8 & 6.9 & 0.2 & 0.1 \\
+Kick-Ass (2010) & 7.9 & 5.9 & 5.7 & 2.03 & 2.17 \\
+Melancholia (2011) & 7.3 & 6.6 & 6.5 & 0.74 & 0.81 \\
+Men in Black II (2002) & 5.7 & 4.5 & 4.9 & 1.25 & 0.83 \\
+Midnight in Paris (2011) & 7.8 & 7.3 & 6.9 & 0.54 & 0.91 \\
+Mirror Mirror (2012) & 5.6 & 7.8 & 8.5 & 2.18 & 2.93 \\
+Orgazmo (1997) & 6.0 & 5.3 & 4.7 & 0.74 & 1.32 \\
+Resident Evil (2002) & 6.5 & 5.1 & 5.1 & 1.38 & 1.44 \\
+Schindler's List (1993) & 8.9 & 8.3 & 8.4 & 0.57 & 0.54 \\
+Serbuan maut & 8.4 & 7.2 & 6.8 & 1.21 & 1.58 \\
+The Artist (2011) & 8.3 & 7.8 & 7.5 & 0.55 & 0.77 \\
+The Big Year (2011) & 6.0 & 6.4 & 7.4 & 0.42 & 1.39 \\
+The Boondock Saints (1999) & 7.8 & 4.6 & 4.4 & 3.2 & 3.39 \\
+The Claim (2000) & 6.5 & 6.4 & 6.5 & 0.09 & 0.01 \\
+The Fifth Element (1997) & 7.5 & 6.4 & 6.7 & 1.09 & 0.75 \\
+The Girl with the Dragon Tattoo (2011) & 8.0 & 5.7 & 5.7 & 2.31 & 2.27 \\
+The Hangover (2009) & 7.8 & 5.8 & 5.5 & 2.04 & 2.33 \\
+The Matrix (1999) & 8.7 & 7.1 & 7.1 & 1.57 & 1.63 \\
+The Million Dollar Hotel & 5.6 & 5.4 & 5.6 & 0.24 & 0.04 \\
+The Muppets (2011) & 7.6 & 7.3 & 7.5 & 0.34 & 0.12 \\
+The Shawshank Redemption (1994) & 9.2 & 9.0 & 9.0 & 0.23 & 0.24 \\
+The Wire (2002) (TV series) & 9.6 & 7.2 & 6.9 & 2.36 & 2.68 \\
+We Bought a Zoo & 7.2 & 8.3 & 8.3 & 1.05 & 1.11 \\
+Wrath of the Titans (2012) & 6.3 & 5.8 & 6.0 & 0.48 & 0.3 \\
+Zoolander (2001) & 6.4 & 5.5 & 6.2 & 0.94 & 0.21 \\
+\hline
+Totalt: & & & &1.0 & 1.2 \\
+\end{tabular}

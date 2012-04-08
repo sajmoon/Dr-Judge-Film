@@ -1,0 +1,17 @@
+\begin{tabular}{ l c c c c c}
+\hline
+Title & IMDB score & Mean & Median & Mean Error & Median Error \\
+\hline
+Chaplin (1992) & 7.3 & 4.1 & 4.0 & 3.17 & 3.27 \\
+Dazed and Confused (1993) & 7.6 & 2.4 & 2.3 & 5.21 & 5.34 \\
+Dummy (2002) & 6.7 & 2.1 & 2.2 & 4.57 & 4.47 \\
+Forrest Gump (1994) & 8.7 & 5.2 & 5.0 & 3.51 & 3.73 \\
+Hobo with a Shotgun (2011) & 6.2 & 2.5 & 2.9 & 3.71 & 3.26 \\
+In Time (2011) & 6.5 & 5.5 & 5.8 & 1.02 & 0.67 \\
+Inception (2010) & 8.8 & 6.6 & 8.7 & 2.24 & 0.08 \\
+The Fifth Element (1997) & 7.5 & 3.2 & 1.9 & 4.25 & 5.6 \\
+The Shawshank Redemption (1994) & 9.2 & 2.6 & 3.8 & 6.59 & 5.45 \\
+Zoolander (2001) & 6.4 & 3.2 & 3.3 & 3.15 & 3.13 \\
+\hline
+Totals: & & & &3.7 & 3.5 \\
+\end{tabular}

@@ -1,0 +1,16 @@
+\begin{tabular}{ l c c }
+\hline
+Klassificering & Precision & Recall \\
+\hline
+Negativ & 0.8 & 0.82 \\
+Positiv & 0.81 & 0.79 \\
+\hline
+Viktat medelvärde: & 0.8 & 0.8 \\
+\end{tabular}
+
+\begin{tabular}{ l c c }
+\hline
+Korrekt klassade & Felaktigt klassade \\
+\hline
+80.4\% & 19.6\% \\
+\end{tabular}
