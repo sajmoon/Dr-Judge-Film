@@ -1,7 +1,6 @@
 require "twitter"
 require_relative "./reviews"
 require_relative "./review"
-require 'factory_girl'
 
 class TwitterParser
 

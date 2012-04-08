@@ -15,7 +15,12 @@ class Movie
     hashtag = ("#" + self.title[/[^(]+/].delete(' ').delete("'"));
   end
 
+  def displaytitle
+    @title.delete(":")
+  end
+
   def xml
     title
   end
+
 end

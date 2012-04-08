@@ -17,6 +17,7 @@ require_relative 'twitter_parser'
 
 tweetFlag = false
 imdbFlag = false
+imdbReviewFlag = false
 tweetsXmlFilename = "tweetData.xml"
 movieXmlFilename = "movieData.xml"
 
@@ -61,9 +62,9 @@ def getMovieInformation(inputMovies)
       @movies.add(@movie)
     rescue
       puts " - Not found"
-
     end
   end
+  @movies.save
   @movies
 end
 
@@ -110,19 +111,22 @@ def getAllMovieReviews(movie)
 end
 
 def listOfMovieTitles
-  movies = ['The girl with the dragon tattoo', 'The Raid: Redemption', 'Hobo with a shotgun', 'Resident Evil: Afterlife', 'Resident Evil', 'Resident Evil: Extinction', 'Resident Evil: Apocalypse', 'Resident Evil: Degeneration', 'Resident Evil', 'Zoolander' 'Dummy', 'The Claim', 'The Million dollar hotel', 'The messenger: The Story of Joan of Arc', 'The fifth Element', 'He Got Game', 'Dazed and confused', 'Chaplin' , 'Kuffs', 'Return to the blue lagoon', 'Married with Children', 'Parker Lewis', 'Two moon Junction']
-  #moview = ['wrath of the titans' , 'We bought a zoo', 'Mirror Mirror', 'The three stooges', 'The artist', 'The Muppets', 'Midnight in Paris', 'Crazy, Stupid, Love', 'American Pie', 'Bridesmaids', 'The hangover', 'Forrest Gump', 'Back to the future', 'Kick-Ass', 'The big Year']
-  #movies = ['Orgazmo', 'Hot Shots!', 'Prometheus', 'The Wire', 'Alien', 'The Boondock Saints', 'John Carter', 'In Time', 'X-men: First class', 'Battle Royal', 'Green Lantern', 'Melancholia', 'Transformers: Dark of the moon', 'Men in Black III', 'Eternal Sunshine of the Spotless Mind', 'Dr Jeckell and Mr.Hyde']
-  #movies = ['Inception', 'Schindlers List', 'Inception', 'Fight Club', 'Goodfellas', 'The Matrix', 'Shawshank Redeption', 'Fight Club', 'Goodfellas', The Matrix']
+  movies1 = ['The girl with the dragon tattoo', 'The Raid: Redemption', 'Hobo with a shotgun', 'Resident Evil: Afterlife', 'Resident Evil', 'Resident Evil: Extinction', 'Resident Evil: Apocalypse', 'Resident Evil: Degeneration', 'Resident Evil', 'Zoolander', 'Dummy', 'The Claim', 'The Million dollar hotel', 'The messenger: The Story of Joan of Arc', 'The fifth Element', 'He Got Game', 'Dazed and confused', 'Chaplin' , 'Kuffs', 'Return to the blue lagoon', 'Married with Children', 'Parker Lewis', 'Two moon Junction']
+movies2 = ['wrath of the titans' , 'We bought a zoo', 'Mirror Mirror', 'The three stooges', 'The artist', 'The Muppets', 'Midnight in Paris', 'Crazy, Stupid, Love', 'American Pie', 'Bridesmaids', 'The hangover', 'Forrest Gump', 'Back to the future', 'Kick-Ass', 'The big Year']
+movies3 = ['Orgazmo', 'Hot Shots!', 'Prometheus', 'The Wire', 'Alien', 'The Boondock Saints', 'John Carter', 'In Time', 'X-men: First class', 'Battle Royal', 'Green Lantern', 'Melancholia', 'Transformers: Dark of the moon', 'Men in Black III', 'Eternal Sunshine of the Spotless Mind', 'Dr Jeckell and Mr.Hyde']
+movies4 = ['Inception', 'Schindlers List', 'Inception', 'Fight Club', 'Goodfellas', 'The Matrix', 'Shawshank Redeption', 'Fight Club', 'Goodfellas']
+movies = movies1 | movies2 | movies3 | movies4
 end
 
-#if imdbFlag
+if imdbFlag
   puts "-----"
   puts "Get movie information from IMDB"
   movielist = listOfMovieTitles
   @movies = getMovieInformation(movielist)
+  
+  @movies.save
   #writeToFile(@movies, movieXmlFilename)
-#end
+end
 
 if tweetFlag 
   puts "-----"
@@ -135,11 +139,15 @@ if tweetFlag
   #writeToFile(xmlTweets,tweetsXmlFilename)
 end
 
-puts "-----"
-puts "And onwards to the reviews!"
+if imdbReviewFlag
+  puts "-----"
+  puts "And onwards to the reviews!"
 
 #@movie = getMovieById("1375666")
   @reviews = getAllMovieReviewsForAllMovies(@movies)
+end
+
+
 
 #@reviews.saveToDisc()
 

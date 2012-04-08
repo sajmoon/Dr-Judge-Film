@@ -10,9 +10,14 @@ class Movies
   def add(movie)
     begin
       Dir::mkdir("data/#{movie.title}/")
-    rescue
 
+    rescue
     end
+    puts "after rescue!"
+    
+    File.open("data/#{movie.title}/imdbscore", "w") { |f| f.write(movie.rating) }
+
+
     @movies << movie
   end
 
@@ -33,5 +38,4 @@ class Movies
     @movies.each { |movie| xml << movie.xml }
     xml
   end
-
 end

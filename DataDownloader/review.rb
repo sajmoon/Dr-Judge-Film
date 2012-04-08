@@ -20,6 +20,6 @@ class Review
   end
 
   def foldername
-    "data/#{@moviename}/#{@source}/"
+    "data/#{@moviename.delete(":")}/#{@source}/"
   end
 end
