@@ -22,8 +22,8 @@ public class Judge {
 	private static final String ARFF_PATH = "datasets/sentences/ARFF/sentenceDataset.arff";
 	private static final String CONF_PATH = "datasets/conf/";
 	private static final String REV_PATH = "DataDownloader/";
-	private static final String EXTRA_FOLDER_NAMES = "(spec)+";
-	
+	private static final String EXTRA_FOLDER_NAMES = "((spec)*|((.)*\\.rb)*|((.)*\\.xml)*|((.)*\\.lock)*|(Gemfile)*)+";
+
 
 	private static final String SCORE_FILE = "imdbscore";
 	private static final String GO_FILE = "gofile";
@@ -32,14 +32,14 @@ public class Judge {
 	private static final String div = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
 
 	private String judgePath;
-	private String classFolderRegex = "((pos)*|(neg)*|(all)*|(imdb)*)+";
+	private String classFolderRegex = "((pos)*|(neg)*|(all)*|(imdb)*|(twitter)*)+";
 	private String dirStructRegex = "((pos)*|(neg)*|(all)*|(imdb)*|("+SCORE_FILE+")*|("+GO_FILE+")*|(twitter)*)+";
 	private String imdbRegex = "(imdb)+";
 	private String twitterRegex = "(twitter)+";
 	private static Config conf;
 	private static ClassifierHandler handler;
 	private ArrayList<ClassificationResult> reviewed;
-	
+
 
 	public Judge(){
 		reviewed = new ArrayList<ClassificationResult>();
@@ -247,7 +247,7 @@ public class Judge {
 			}
 		}
 		printMatrix();
-		printMatrixToTEXFile();
+		printMatrixToTEXFile(dir.getName());
 
 	}
 	private void printMatrix(){
@@ -271,12 +271,12 @@ public class Judge {
 	}
 
 	public void judgeFilm(File film,boolean useGoFile){
-		int numReviews = numReviews(film);
-		double expectedScore = getExpectedScore(film);
 		boolean doClassify = true;
 		if(useGoFile)
 			doClassify = doesGoFileExist(film);
 		if(doClassify){
+			int numReviews = numReviews(film);
+			double expectedScore = getExpectedScore(film);
 			try {
 				p("Judging film: "+film.getName());
 				classify(expectedScore,film.getAbsolutePath(), numReviews);
@@ -300,7 +300,7 @@ public class Judge {
 		try {
 			File scoreFile = null;
 			for(File f : filmfolder.listFiles()){
-				if(f.getName().matches(imdbRegex))
+				if(f.getName().matches(imdbRegex) | f.getName().matches(twitterRegex))
 					scoreFile = new File(f.getAbsolutePath()+"/"+SCORE_FILE);
 			}
 			BufferedReader in = new BufferedReader(new FileReader(scoreFile));
@@ -373,6 +373,8 @@ public class Judge {
 			p("confusion matrix:");
 			p(e.toMatrixString());
 			p(div);
+			printEvalDataToTEXFile(e);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -380,11 +382,15 @@ public class Judge {
 	private int numReviews(File film){
 		ArrayList<String> revs = new ArrayList<String>();
 		File[] revFolders = film.listFiles();
-		for(File dir : revFolders)
-			if(dir.getName().matches(classFolderRegex)){
-				revs.addAll(Arrays.asList(dir.list()));
+		if(revFolders != null){
+			for(File dir : revFolders){
+				if(dir.getName().matches(classFolderRegex)){
+					revs.addAll(Arrays.asList(dir.list()));
+				}
 			}
-		return revs.size();
+			return revs.size();
+		}
+		return -1;
 	}
 	static private void p(String m){
 		System.out.println(m);
@@ -392,13 +398,13 @@ public class Judge {
 	static private void pp(String m){
 		System.out.print(m);
 	}
-	private void printMatrixToTEXFile(){
+	private void printMatrixToTEXFile(String method){
 		StringBuilder b = new StringBuilder();
 		b.append("\\begin{tabular}{ l c c c c c}\n");
 		b.append("\\hline\n");
-		b.append("Title & IMDB score &" +
-				" Mean & Median &" +
-				" Mean Error & Median Error \\\\\n");
+		b.append("Titel & IMDBbetyg &" +
+				" Medelvärde & Median &" +
+				" Medelvärdesfel & Medianfel \\\\\n");
 		b.append("\\hline\n");
 		double totalMeanError = 0;
 		double totalMedError = 0;
@@ -421,10 +427,10 @@ public class Judge {
 		String sMeanError = doubleToOneDecimal(totalMeanError);
 		String sMedError = doubleToOneDecimal(totalMedError);
 		b.append("\\hline\n");
-		b.append("Totals: & & & &"+sMeanError+" & "+sMedError+" \\\\\n" );
+		b.append("Totalt: & & & &"+sMeanError+" & "+sMedError+" \\\\\n" );
 		b.append("\\end{tabular}");
 		String texString = b.toString();
-		String tablePath = "datasets/TeXTable"+handler.ALGO_USED;
+		String tablePath = "datasets/"+method+"_TeXTable_"+handler.ALGO_USED;
 		File f = new File(tablePath);
 		BufferedWriter out = null;
 		try {
@@ -441,6 +447,45 @@ public class Judge {
 		}
 		p("Wrote result matrix to file: "+tablePath);
 
+	}
+	private void printEvalDataToTEXFile(Evaluation e){
+		StringBuilder b = new StringBuilder();
+		b.append("\\begin{tabular}{ l c c }\n");
+		b.append("\\hline\n");
+		b.append("Klassificering & Precision &" +
+				" Recall \\\\\n");
+		b.append("\\hline\n");
+		b.append("Negativ & "+to2(e.precision(0))+" & "+to2(e.recall(0))+" \\\\\n");
+		b.append("Positiv & "+to2(e.precision(1))+" & "+to2(e.recall(1))+" \\\\\n");
+		
+		b.append("\\hline\n");
+		b.append("Viktat medelvärde: & "+to2(e.weightedPrecision())+" & "+to2(e.weightedRecall())+" \\\\\n" );
+		b.append("\\end{tabular}\n\n");
+		
+		b.append("\\begin{tabular}{ l c c }\n");
+		b.append("\\hline\n");
+		b.append("Korrekt klassade & Felaktigt klassade \\\\\n");
+		b.append("\\hline\n");
+		b.append(""+e.pctCorrect()+"\\% & "+e.pctIncorrect()+"\\% \\\\\n");
+		b.append("\\end{tabular}\n");
+		
+		String texString = b.toString();
+		String tablePath = "datasets/Eval_TeXTable_"+handler.ALGO_USED;
+		File f = new File(tablePath);
+		BufferedWriter out = null;
+		try {
+			out = new BufferedWriter(new FileWriter(f));
+			out.write(texString);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} finally{
+			try {
+				out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+		p("Wrote eval table to file: "+tablePath);
 	}
 
 }
