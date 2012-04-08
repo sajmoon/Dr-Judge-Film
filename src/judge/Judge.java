@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import weka.classifiers.Classifier;
@@ -14,6 +15,7 @@ import weka.core.Instances;
 public class Judge {
 	private static final String TEST_PATH = "datasets/classified/test/";
 	private static final String TRAIN_PATH = "datasets/classified/train/";
+	private static final String SCORE_FILE = "imdbscore";
 	private static final String FULL_TRAIN_PATH = "datasets/combinedTrainingData/";
 	private static final String ARFF_PATH = "datasets/sentences/ARFF/sentenceDataset.arff";
 	private static final String CONF_PATH = "datasets/conf/";
@@ -25,6 +27,7 @@ public class Judge {
 	private String classFolderRegex = "((pos)*|(neg)*|(all)*|(imdb)*|(twitter)*)+";
 	private static Config conf;
 	private static ClassifierHandler handler;
+	private ArrayList<ClassificationResult> reviewed;
 
 	public Judge(){
 		conf = new Config(CONF_PATH);
@@ -230,10 +233,23 @@ public class Judge {
 	public void judgeFilm(File film){
 		p("Judging film: "+film.getName());
 		int numReviews = numReviews(film);
+		double expectedScore = getExpectedScore(film);
 		try {
-			classify(-1,film.getAbsolutePath(), numReviews);
+			classify(expectedScore,film.getAbsolutePath(), numReviews);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	private double getExpectedScore(File filmfolder){
+		try {
+			File scoreFile = new File(filmfolder.listFiles()[0].getAbsolutePath()+"/"+SCORE_FILE);
+			BufferedReader in = new BufferedReader(new FileReader(scoreFile));
+			String scoreString;
+			scoreString = in.readLine();
+			double score = Double.parseDouble(scoreString);
+			return score;
+		} catch (IOException e) {
+			return -1;
 		}
 	}
 
@@ -262,7 +278,7 @@ public class Judge {
 		}
 		p(div);
 	}
-	private String doubleToOneDecimal(double d){
+	public static String doubleToOneDecimal(double d){
 		if(Double.toString(d).length() < 4){
 			return Double.toString(d);
 		}
