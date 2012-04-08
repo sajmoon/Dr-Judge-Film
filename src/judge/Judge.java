@@ -1,11 +1,14 @@
 package judge;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import weka.classifiers.Classifier;
@@ -15,21 +18,31 @@ import weka.core.Instances;
 public class Judge {
 	private static final String TEST_PATH = "datasets/classified/test/";
 	private static final String TRAIN_PATH = "datasets/classified/train/";
-	private static final String SCORE_FILE = "imdbscore";
 	private static final String FULL_TRAIN_PATH = "datasets/combinedTrainingData/";
 	private static final String ARFF_PATH = "datasets/sentences/ARFF/sentenceDataset.arff";
 	private static final String CONF_PATH = "datasets/conf/";
-	private static final String REV_PATH = "DataDownloader/data/";
+	private static final String REV_PATH = "DataDownloader/";
+	private static final String EXTRA_FOLDER_NAMES = "(spec)+";
+	
+
+	private static final String SCORE_FILE = "imdbscore";
+	private static final String GO_FILE = "gofile";
 	private static final String JUDGE_COMMAND = "judge";
+	private static final String FLAG_TESTFILMS = "-t";
 	private static final String div = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
 
 	private String judgePath;
-	private String classFolderRegex = "((pos)*|(neg)*|(all)*|(imdb)*|(twitter)*)+";
+	private String classFolderRegex = "((pos)*|(neg)*|(all)*|(imdb)*)+";
+	private String dirStructRegex = "((pos)*|(neg)*|(all)*|(imdb)*|("+SCORE_FILE+")*|("+GO_FILE+")*|(twitter)*)+";
+	private String imdbRegex = "(imdb)+";
+	private String twitterRegex = "(twitter)+";
 	private static Config conf;
 	private static ClassifierHandler handler;
 	private ArrayList<ClassificationResult> reviewed;
+	
 
 	public Judge(){
+		reviewed = new ArrayList<ClassificationResult>();
 		conf = new Config(CONF_PATH);
 		handler = new ClassifierHandler();
 		handler.setTrainingData(handler.loadDataFromDir(TRAIN_PATH));
@@ -55,7 +68,10 @@ public class Judge {
 			} catch(NumberFormatException e){
 				if(optString.startsWith(JUDGE_COMMAND)){
 					if(judgePath != null){
-						judgeFilmFolder (judgePath);
+						boolean onlyTestFilms = false;
+						if(optString.contains(FLAG_TESTFILMS))
+							onlyTestFilms = true;
+						judgeFilmFolder (judgePath,onlyTestFilms);
 					}
 					else
 						p("Set a judge path first!");
@@ -155,7 +171,7 @@ public class Judge {
 				String name = c.getClass().getSimpleName();
 				p("Using classifier: "+name);
 				setClassifier(name);
-				judgeFilmFolder(judgePath);
+				judgeFilmFolder(judgePath,false);
 			}
 		}else{
 			p("No judge path");
@@ -177,8 +193,9 @@ public class Judge {
 		sb.append(tabs+dir.getName()+":\n");
 		if(list != null && list.length > 0){
 			for(File f : list){
-				boolean isClassFolder = f.getName().matches(classFolderRegex);
-				if(!isClassFolder){
+				boolean isClassFolder = f.getName().matches(dirStructRegex);
+				boolean isRelevant = !f.getName().matches(EXTRA_FOLDER_NAMES);
+				if(!isClassFolder && isRelevant){
 					if(f.isDirectory()){
 						//Append files from lower down
 						sb.append(recursiveFileStruct(f,level+1));
@@ -207,7 +224,8 @@ public class Judge {
 		conf.writeCurrentConf(handler.ALGO_USED);
 	}
 
-	public void judgeFilmFolder(String path){
+	public void judgeFilmFolder(String path, boolean onlyFlagged){
+		reviewed.clear();
 		File dir = new File(path);
 		if(!dir.isDirectory()){
 			p(path+" is not a directory");
@@ -221,34 +239,78 @@ public class Judge {
 			isFilmDirectory = f.getName().matches(classFolderRegex);
 		}
 		if(isFilmDirectory){
-			judgeFilm(dir);
+			judgeFilm(dir,onlyFlagged);
 		}
 		else{
 			for(File film : films){
-				judgeFilm(film);
+				judgeFilm(film,onlyFlagged);
+			}
+		}
+		printMatrix();
+		printMatrixToTEXFile();
+
+	}
+	private void printMatrix(){
+		p("Result matrix:");
+		p(ClassificationResult.getMatrixHeader());
+		double totalMeanError = 0;
+		double totalMedError = 0;
+		double numReviews = reviewed.size();
+		for(ClassificationResult res : reviewed){
+			p(res.toString());
+			double medError = Math.abs(res.imdbScore-res.median);
+			double meanError = Math.abs(res.imdbScore-res.mean);
+			totalMeanError += meanError;
+			totalMedError += medError;
+		}
+		totalMeanError = totalMeanError/numReviews;
+		totalMedError = totalMedError/numReviews;
+		p("Totals:\t\t\t\t\t\t\t\t\t"+
+				doubleToOneDecimal(totalMeanError)+
+				"\t\t"+doubleToOneDecimal(totalMedError));
+	}
+
+	public void judgeFilm(File film,boolean useGoFile){
+		int numReviews = numReviews(film);
+		double expectedScore = getExpectedScore(film);
+		boolean doClassify = true;
+		if(useGoFile)
+			doClassify = doesGoFileExist(film);
+		if(doClassify){
+			try {
+				p("Judging film: "+film.getName());
+				classify(expectedScore,film.getAbsolutePath(), numReviews);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}
-
-	public void judgeFilm(File film){
-		p("Judging film: "+film.getName());
-		int numReviews = numReviews(film);
-		double expectedScore = getExpectedScore(film);
-		try {
-			classify(expectedScore,film.getAbsolutePath(), numReviews);
-		} catch (Exception e) {
-			e.printStackTrace();
+	private boolean doesGoFileExist(File film) {
+		File[] files = film.listFiles();
+		for(File f : files){
+			String fileName = f.getName();
+			if(fileName.equals(GO_FILE)){
+				return true;
+			}
 		}
+		return false;
 	}
+
 	private double getExpectedScore(File filmfolder){
 		try {
-			File scoreFile = new File(filmfolder.listFiles()[0].getAbsolutePath()+"/"+SCORE_FILE);
+			File scoreFile = null;
+			for(File f : filmfolder.listFiles()){
+				if(f.getName().matches(imdbRegex))
+					scoreFile = new File(f.getAbsolutePath()+"/"+SCORE_FILE);
+			}
 			BufferedReader in = new BufferedReader(new FileReader(scoreFile));
 			String scoreString;
 			scoreString = in.readLine();
 			double score = Double.parseDouble(scoreString);
 			return score;
 		} catch (IOException e) {
+			return -1;
+		} catch (NullPointerException e){
 			return -1;
 		}
 	}
@@ -271,6 +333,9 @@ public class Judge {
 		p("Mean: "+doubleToOneDecimal(result.mean));
 		p("Median: "+doubleToOneDecimal(result.median));
 		if(hasExpectedScore){
+			result.title = filmName;
+			result.imdbScore = expectedScore;
+			reviewed.add(result);
 			p("------------------");
 			p("Error:");
 			p("Mean: "+meanError);
@@ -279,24 +344,19 @@ public class Judge {
 		p(div);
 	}
 	public static String doubleToOneDecimal(double d){
-		if(Double.toString(d).length() < 4){
-			return Double.toString(d);
-		}
-		String twoDecimals = Double.toString(d).substring(0,4);
-		String integer = twoDecimals.substring(0,1);
-		String firstDecimal = Double.toString(d).substring(2, 3);
-		String lastDecimal = twoDecimals.substring(3);
-		int lastDec = Integer.parseInt(lastDecimal);
-		if(lastDec < 5)
-			return integer+"."+firstDecimal;
-		else{
-			int newFirstDecimal = (Integer.parseInt(firstDecimal))+1;
-			if(newFirstDecimal >9 ){
-				newFirstDecimal = 0;
-				integer = Integer.toString((Integer.parseInt(integer)+1));
-			}
-			return integer+"."+newFirstDecimal;
-		}
+		return doubleToXdecimals(d,1);
+	}
+	private String to1(double d){
+		return doubleToXdecimals(d,1);
+	}
+	private String to2(double d){
+		return doubleToXdecimals(d,2);
+	}
+	public static String doubleToXdecimals(double d, int x){
+		double roundTo = Math.pow(10, x);
+		d = (double)Math.round(d * roundTo) / roundTo;
+		return Double.toString(d);
+
 	}
 
 	private void evaluateCurrentClassifier(){
@@ -318,14 +378,69 @@ public class Judge {
 		}
 	}
 	private int numReviews(File film){
-		String[] revs = film.listFiles()[0].list();
-		return revs.length;
+		ArrayList<String> revs = new ArrayList<String>();
+		File[] revFolders = film.listFiles();
+		for(File dir : revFolders)
+			if(dir.getName().matches(classFolderRegex)){
+				revs.addAll(Arrays.asList(dir.list()));
+			}
+		return revs.size();
 	}
 	static private void p(String m){
 		System.out.println(m);
 	}
 	static private void pp(String m){
 		System.out.print(m);
+	}
+	private void printMatrixToTEXFile(){
+		StringBuilder b = new StringBuilder();
+		b.append("\\begin{tabular}{ l c c c c c}\n");
+		b.append("\\hline\n");
+		b.append("Title & IMDB score &" +
+				" Mean & Median &" +
+				" Mean Error & Median Error \\\\\n");
+		b.append("\\hline\n");
+		double totalMeanError = 0;
+		double totalMedError = 0;
+		double numReviews = reviewed.size();
+		for(ClassificationResult res : reviewed){
+			String medError = to2(Math.abs(res.imdbScore-res.median));
+			String meanError = to2(Math.abs(res.imdbScore-res.mean));
+			b.append(""+res.title+" & "+
+					to1(res.imdbScore)+" & "+
+					to1(res.mean)+" & "+
+					to1(res.median)+" & "+
+					meanError+" & "+
+					medError+" \\\\\n");
+
+			totalMeanError += Math.abs(res.imdbScore-res.mean);
+			totalMedError += Math.abs(res.imdbScore-res.median);
+		}
+		totalMeanError = totalMeanError/numReviews;
+		totalMedError = totalMedError/numReviews;
+		String sMeanError = doubleToOneDecimal(totalMeanError);
+		String sMedError = doubleToOneDecimal(totalMedError);
+		b.append("\\hline\n");
+		b.append("Totals: & & & &"+sMeanError+" & "+sMedError+" \\\\\n" );
+		b.append("\\end{tabular}");
+		String texString = b.toString();
+		String tablePath = "datasets/TeXTable"+handler.ALGO_USED;
+		File f = new File(tablePath);
+		BufferedWriter out = null;
+		try {
+			out = new BufferedWriter(new FileWriter(f));
+			out.write(texString);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally{
+			try {
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		p("Wrote result matrix to file: "+tablePath);
+
 	}
 
 }

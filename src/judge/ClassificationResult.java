@@ -23,13 +23,17 @@ public class ClassificationResult {
 		String matrixRow = title.substring(0, 8) + ":\t\t"+
 				Judge.doubleToOneDecimal(imdbScore)+"\t\t"+
 				Judge.doubleToOneDecimal(mean)+"\t\t"+
-				Judge.doubleToOneDecimal(median)+"\t\t";
+				Judge.doubleToOneDecimal(median)+"\t\t"+
+				Judge.doubleToOneDecimal(Math.abs(imdbScore-mean))+"\t\t"+
+				Judge.doubleToOneDecimal(Math.abs(imdbScore-median))+"\t\t";
+				
 		return matrixRow;
 				
 	}
 	
 	public static String getMatrixHeader(){
-		return "Title\t\tIMDB score\t\tMean\t\tMedian\t\t";
+		return "Title\t\tIMDB score\t\tMean\t\t" +
+				"Median\t\tMeanError\t\tMedError\t\t";
 	}
 
 }
