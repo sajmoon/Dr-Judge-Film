@@ -20,6 +20,7 @@ import weka.classifiers.functions.Logistic;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.PaceRegression;
 import weka.classifiers.functions.SMO;
+import weka.classifiers.functions.VotedPerceptron;
 import weka.classifiers.lazy.IB1;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.lazy.KStar;
@@ -206,7 +207,7 @@ public class ClassifierHandler {
 	}
 
 	public Evaluation evaluateModel(Instances data) throws Exception{
-		p("Evulation of algo "+ALGO_USED+":");
+		p("Evaluation of algo "+ALGO_USED+":");
 		Evaluation e = new Evaluation(trainDataset);
 		e.evaluateModel(classifier, data);
 		return e;
@@ -217,7 +218,10 @@ public class ClassifierHandler {
 		int numInstances = data.numInstances();
 		int pos = 0;
 		int neg = 0;
+		
 		for(int i=0;i < data.numInstances(); i++){
+			
+			
 			int result = (int) classifier.classifyInstance(data.instance(i));
 			boolean isPositive = result==POS_CLASS;
 			if(isPositive)
