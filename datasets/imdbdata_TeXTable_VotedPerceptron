@@ -1,3 +1,4 @@
+\begin{table}[h!]
 \begin{tabular}{ l c c c c c}
 \hline
 Titel & IMDBbetyg & Medelvärde & Median & Medelvärdesfel & Medianfel \\
@@ -51,3 +52,5 @@ Zoolander (2001) & 6.4 & 5.5 & 6.2 & 0.94 & 0.21 \\
 \hline
 Totalt: & & & &1.0 & 1.2 \\
 \end{tabular}
+\caption{Bedömning av IMDB-data, Voted Perceptron}
+\end{table}

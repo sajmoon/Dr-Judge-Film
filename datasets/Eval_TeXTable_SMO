@@ -1,3 +1,4 @@
+\begin{table}[h!]
 \begin{tabular}{ l c c }
 \hline
 Klassificering & Precision & Recall \\
@@ -7,10 +8,15 @@ Positiv & 0.78 & 0.78 \\
 \hline
 Viktat medelvärde: & 0.78 & 0.78 \\
 \end{tabular}
+\caption{Precision och Recall för Support Vector Machines}
+\end{table}
 
+\begin{table}[h!]
 \begin{tabular}{ l c c }
 \hline
 Korrekt klassade & Felaktigt klassade \\
 \hline
 78.3\% & 21.7\% \\
 \end{tabular}
+\caption{Korrekt och felaktigt klassade instanser, Support Vector Machines}
+\end{table}

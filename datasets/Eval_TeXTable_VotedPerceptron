@@ -1,3 +1,4 @@
+\begin{table}[h!]
 \begin{tabular}{ l c c }
 \hline
 Klassificering & Precision & Recall \\
@@ -7,10 +8,15 @@ Positiv & 0.77 & 0.73 \\
 \hline
 Viktat medelvärde: & 0.76 & 0.76 \\
 \end{tabular}
+\caption{Precision och Recall för Voted Perceptron}
+\end{table}
 
+\begin{table}[h!]
 \begin{tabular}{ l c c }
 \hline
 Korrekt klassade & Felaktigt klassade \\
 \hline
 75.6\% & 24.4\% \\
 \end{tabular}
+\caption{Korrekt och felaktigt klassade instanser, Voted Perceptron}
+\end{table}

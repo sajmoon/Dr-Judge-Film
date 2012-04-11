@@ -1,3 +1,4 @@
+\begin{table}[h!]
 \begin{tabular}{ l c c }
 \hline
 Klassificering & Precision & Recall \\
@@ -7,10 +8,15 @@ Positiv & 0.81 & 0.79 \\
 \hline
 Viktat medelvärde: & 0.8 & 0.8 \\
 \end{tabular}
+\caption{Precision och Recall för Naive Bayes}
+\end{table}
 
+\begin{table}[h!]
 \begin{tabular}{ l c c }
 \hline
 Korrekt klassade & Felaktigt klassade \\
 \hline
 80.4\% & 19.6\% \\
 \end{tabular}
+\caption{Korrekt och felaktigt klassade instanser, Naive Bayes}
+\end{table}

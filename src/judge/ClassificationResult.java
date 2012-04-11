@@ -20,7 +20,10 @@ public class ClassificationResult {
 	}
 	
 	public String toString(){
-		String matrixRow = title.substring(0, 8) + ":\t\t"+
+		String theTitle = title;
+		if(title.length() > 8)
+			theTitle = title.substring(0, 8);
+		String matrixRow = theTitle + ":\t\t"+
 				Judge.doubleToOneDecimal(imdbScore)+"\t\t"+
 				Judge.doubleToOneDecimal(mean)+"\t\t"+
 				Judge.doubleToOneDecimal(median)+"\t\t"+

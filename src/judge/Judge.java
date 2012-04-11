@@ -247,7 +247,7 @@ public class Judge {
 			}
 		}
 		printMatrix();
-		printMatrixToTEXFile(dir.getName());
+		//printMatrixToTEXFile(dir.getName());
 
 	}
 	private void printMatrix(){
